@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  medicamento-api:
+    build: .
+    container_name: medicamento-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      medicamento-mysql-container:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://medicamento-mysql-container:3306/medicamentodb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=admin
+    restart: on-failure
+    networks:
+      - backend-net
+
+  medicamento-mysql-container:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: medicamentodb
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    ports:
+      - "3306:3306"
+    volumes:
+      - medicamento_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+volumes:
+  medicamento_data:
+
+networks:
+  backend-net:
