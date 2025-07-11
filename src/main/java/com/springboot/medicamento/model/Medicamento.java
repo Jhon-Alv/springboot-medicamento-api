@@ -23,4 +23,6 @@ public class Medicamento {
 
     private Integer stock;
 
+    private String imagen;
+
 }
